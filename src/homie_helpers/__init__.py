@@ -6,5 +6,6 @@ __all__ = [
     'add_property_boolean',
     'add_property_string',
     'add_property_enum',
+    'create_homie_id',
     'Property'
 ]

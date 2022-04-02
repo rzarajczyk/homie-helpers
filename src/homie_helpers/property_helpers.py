@@ -30,7 +30,7 @@ class Property:
     @meta.setter
     def meta(self, meta):
         self.original_meta = meta
-        self.original.meta = to_homie_meta(meta)
+        self.original.meta = _to_homie_meta(meta)
         self.original.publish_meta()
 
     def raw_property(self) -> Property_Base:
@@ -53,11 +53,11 @@ def create_homie_id(group_name: str) -> str:
     return re.sub(r'[^a-z0-9]', '-', normalized).lstrip('-')
 
 
-def init_property(device: Device_Base,
-                  property_id: str,
-                  property_name: str,
-                  parent_node_id: str,
-                  parent_node_name: str):
+def _init_property(device: Device_Base,
+                   property_id: str,
+                   property_name: str,
+                   parent_node_id: str,
+                   parent_node_name: str):
     property_name = property_id.capitalize().replace('-', " ") if property_name is None else property_name
     if device.get_node(parent_node_id) is None:
         parent_node_name = parent_node_id.capitalize() if parent_node_name is None else parent_node_name
@@ -67,7 +67,7 @@ def init_property(device: Device_Base,
     return property_name, node
 
 
-def to_homie_meta(meta: dict) -> dict:
+def _to_homie_meta(meta: dict) -> dict:
     result = {}
     for key in meta:
         value = meta[key]
@@ -88,7 +88,7 @@ def add_property_int(device: Device_Base,
                      min_value: int = None,
                      max_value: int = None,
                      meta: dict = {}) -> Property:
-    property_name, node = init_property(device, property_id, property_name, parent_node_id, parent_node_name)
+    property_name, node = _init_property(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     data_format = "%s:%s" % (min_value, max_value) if min_value is not None and max_value is not None else None
     prop = Property_Integer(node,
@@ -98,7 +98,7 @@ def add_property_int(device: Device_Base,
                             unit=unit,
                             data_format=data_format,
                             set_value=set_handler,
-                            meta=to_homie_meta(meta))
+                            meta=_to_homie_meta(meta))
     node.add_property(prop)
     return Property(prop, meta)
 
@@ -113,7 +113,7 @@ def add_property_float(device: Device_Base,
                        min_value: int = None,
                        max_value: int = None,
                        meta: dict = {}) -> Property:
-    property_name, node = init_property(device, property_id, property_name, parent_node_id, parent_node_name)
+    property_name, node = _init_property(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     data_format = "%s:%s" % (min_value, max_value) if min_value is not None and max_value is not None else None
     prop = Property_Float(node,
@@ -123,7 +123,7 @@ def add_property_float(device: Device_Base,
                           unit=unit,
                           data_format=data_format,
                           set_value=set_handler,
-                          meta=to_homie_meta(meta))
+                          meta=_to_homie_meta(meta))
     node.add_property(prop)
     return Property(prop, meta)
 
@@ -137,7 +137,7 @@ def add_property_boolean(device: Device_Base,
                          retained: bool = True,
                          unit=None,
                          meta: dict = {}) -> Property:
-    property_name, node = init_property(device, property_id, property_name, parent_node_id, parent_node_name)
+    property_name, node = _init_property(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     prop = Property_Boolean(node,
                             id=property_id,
@@ -146,7 +146,7 @@ def add_property_boolean(device: Device_Base,
                             unit=unit,
                             retained=retained,
                             set_value=set_handler,
-                            meta=to_homie_meta(meta))
+                            meta=_to_homie_meta(meta))
     node.add_property(prop)
     return Property(prop, meta)
 
@@ -160,7 +160,7 @@ def add_property_enum(device: Device_Base,
                       unit=None,
                       values: list = [],
                       meta: dict = {}) -> Property:
-    property_name, node = init_property(device, property_id, property_name, parent_node_id, parent_node_name)
+    property_name, node = _init_property(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     prop = Property_Enum(node,
                          id=property_id,
@@ -169,7 +169,7 @@ def add_property_enum(device: Device_Base,
                          unit=unit,
                          data_format=",".join(values),
                          set_value=set_handler,
-                         meta=to_homie_meta(meta))
+                         meta=_to_homie_meta(meta))
     node.add_property(prop)
     return Property(prop, meta)
 
@@ -184,7 +184,7 @@ def add_property_string(device: Device_Base,
                         data_format: str = None,
                         set_handler=None,
                         meta: dict = {}) -> Property:
-    property_name, node = init_property(device, property_id, property_name, parent_node_id, parent_node_name)
+    property_name, node = _init_property(device, property_id, property_name, parent_node_id, parent_node_name)
     settable = set_handler is not None
     prop = Property_String(node,
                            id=property_id,
@@ -194,6 +194,6 @@ def add_property_string(device: Device_Base,
                            unit=unit,
                            data_format=data_format,
                            set_value=set_handler,
-                           meta=to_homie_meta(meta))
+                           meta=_to_homie_meta(meta))
     node.add_property(prop)
     return Property(prop, meta)
