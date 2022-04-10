@@ -1,0 +1,3 @@
+Homie4
+paho-mqtt~=1.6.1
+pytest
