@@ -13,5 +13,5 @@ __all__ = [
     'EnumProperty',
     'State',
     'MetaAccessor',
-    'HomieSettings'
+    'MqttSettings'
 ]

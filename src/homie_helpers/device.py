@@ -83,7 +83,7 @@ class Node:
         self.properties = properties
 
 
-class HomieSettings:
+class MqttSettings:
     def __init__(self, broker: str, port: int = 1883, username: str = None, password: str = None, topic: str = "homie"):
         self.broker = broker
         self.port = port
@@ -105,9 +105,18 @@ class HomieSettings:
         result['topic'] = self.topic
         return result
 
+    @staticmethod
+    def from_dict(settings: dict):
+        return MqttSettings(
+            broker=settings.get('broker'),
+            port=settings.get('port', 1883),
+            username=settings.get('username', None),
+            password=settings.get('password', None)
+        )
+
 
 class DeviceBaseWrapper(Device_Base):
-    def __init__(self, settings: HomieSettings,
+    def __init__(self, settings: MqttSettings,
                  id: str,
                  name: str = None,
                  nodes: list[Node] = []):
@@ -184,7 +193,7 @@ class State(Enum):
 
 
 class Homie:
-    def __init__(self, settings: HomieSettings,
+    def __init__(self, settings: MqttSettings,
                  id: str,
                  name: str = None,
                  nodes: list[Node] = []):

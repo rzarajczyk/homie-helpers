@@ -1,5 +1,4 @@
 venv
-venv-intellij
 *.iml
 .idea
 dist

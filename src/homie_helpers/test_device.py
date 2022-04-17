@@ -3,15 +3,15 @@ import time
 import paho.mqtt.client as mqtt
 import pytest
 
-from .device import Homie, Node, State, HomieSettings
+from .device import Homie, Node, State, MqttSettings
 from .properties import IntProperty, FloatProperty, StringProperty, BooleanProperty, EnumProperty
 
 TOPIC = 'test-homie'
-SETTINGS = HomieSettings('mqtt.eclipseprojects.io', topic=TOPIC)
+SETTINGS = MqttSettings('mqtt.eclipseprojects.io', topic=TOPIC)
 
 
 class TestHomieMqttClient:
-    def __init__(self, settings: HomieSettings):
+    def __init__(self, settings: MqttSettings):
         self.topic_value_cache = {}
         self.client = mqtt.Client()
         self.client.on_connect = lambda client, user, flags, rc: client.subscribe(f'{settings.topic}/#')
