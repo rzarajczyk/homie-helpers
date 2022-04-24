@@ -77,7 +77,7 @@ class Property:
 
 
 class Node:
-    def __init__(self, id: str, name: str = None, type: str = None, properties: list[Property] = []):
+    def __init__(self, id: str, name: str = None, type: str = None, properties: list = []):
         self.id = id
         self.name = homie_name(id, name)
         self.type = type if type is not None else self.id
@@ -126,7 +126,7 @@ class DeviceBaseWrapper(Device_Base):
     def __init__(self, settings: MqttSettings,
                  id: str,
                  name: str = None,
-                 nodes: list[Node] = []):
+                 nodes: list = []):
         super().__init__(device_id=id,
                          name=homie_name(id, name),
                          mqtt_settings=settings.to_homie4_mqtt_settings(),
@@ -209,7 +209,7 @@ class Homie:
     def __init__(self, settings: MqttSettings,
                  id: str,
                  name: str = None,
-                 nodes: list[Node] = []):
+                 nodes: list = []):
         self._device = DeviceBaseWrapper(settings, id, name, nodes)
         self.meta = MetaAccessor(self._device)
 

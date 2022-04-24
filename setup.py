@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="homie-helpers",
-    version="0.0.5",
+    version="0.0.6",
     description="A set of helpers for implementing Homie IoT Convention",
     author="Rafał Zarajczyk",
     author_email="rzarajczyk@gmail.com",

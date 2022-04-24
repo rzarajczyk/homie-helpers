@@ -11,10 +11,11 @@ py -m build
 
 # Upload test (Windows)
 ```shell
-py -m twine upload --repository testpypi dist/*
+# py -m pip install --upgrade tw
 ```
 
 # Upload prod (Windows)
 ```shell
+# py -m pip install --upgrade twine
 py -m twine upload dist/*
 ```
