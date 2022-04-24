@@ -1,4 +1,5 @@
 import re
+import time
 from enum import Enum, auto
 
 import homie.device_base
@@ -84,12 +85,14 @@ class Node:
 
 
 class MqttSettings:
-    def __init__(self, broker: str, port: int = 1883, username: str = None, password: str = None, topic: str = "homie"):
+    def __init__(self, broker: str, port: int = 1883, username: str = None, password: str = None, topic: str = "homie",
+                 connect_timeout_ms: int = 1000):
         self.broker = broker
         self.port = port
         self.username = username
         self.password = password
         self.topic = topic
+        self.connect_timeout = connect_timeout_ms
 
     def to_homie4_mqtt_settings(self):
         return {
@@ -114,6 +117,10 @@ class MqttSettings:
             password=settings.get('password', None)
         )
 
+    def __repr__(self):
+        masked_password = 'None' if self.password is None else '*' * len(self.password)
+        return f'target=mqtt://${self.username}:${masked_password}@${self.broker}:@{self.port}; topic=${self.topic}; connect_timeout=${self.connect_timeout}'
+
 
 class DeviceBaseWrapper(Device_Base):
     def __init__(self, settings: MqttSettings,
@@ -124,6 +131,12 @@ class DeviceBaseWrapper(Device_Base):
                          name=homie_name(id, name),
                          mqtt_settings=settings.to_homie4_mqtt_settings(),
                          homie_settings=settings.to_homie4_homie_settings())
+        start_time_ms = int(round(time.time() * 1000))
+        while not self.mqtt_client.mqtt_connected and int(
+                round(time.time() * 1000)) - start_time_ms < settings.connect_timeout:
+            time.sleep(0.1)
+        if not self.mqtt_client.mqtt_connected:
+            raise Exception("Could not connect to MQTT using settings: %s" % settings)
         self.__registered_properties_by_id = {}
         for node in nodes:
             homie4_node = Node_Base(self, node.id, node.name, node.type)
