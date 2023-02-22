@@ -143,16 +143,28 @@ class MqttListener:
 
 class MqttClient:
     def __init__(self, mqtt_settings: MqttSettings):
+        self.logger = logging.getLogger('MqttClient')
         self.client = mqtt.Client()
         self.client.username_pw_set(mqtt_settings.username, mqtt_settings.password)
         self.client.connect(mqtt_settings.broker, mqtt_settings.port)
         self.mqtt_collectors: list[MqttListener] = []
+        def on_connect(client, userdata, flags, rc):
+            self.logger.info("Connected with result code %s" % str(rc))
+            client.subscribe(f"{mqtt_settings.topic}/#")
+        def on_message(client, userdata, msg):
+            topic = msg.topic
+            payload = msg.payload.decode(encoding='UTF-8')
+            for collector in self.mqtt_collectors:
+                collector.collect(topic, payload)
+        self.client.on_connect = on_connect
+        self.client.on_message = on_message
+        self.client.loop_start()
 
     def publish(self, topic, payload):
         return self.client.publish(topic, payload)
 
     def listen(self, topic, processor=str):
-        collector = MqttListener(topic, logging.getLogger('mqtt_collector'), processor)
+        collector = MqttListener(topic, self.logger, processor)
         self.mqtt_collectors.append(collector)
         return collector
 
