@@ -1,12 +1,17 @@
 import setuptools
+import os
+import time
 
 with open("README.md", "r") as fh:
     long_description = fh.read()
 
+version = open("version.txt", "r").read()
+postfix = "" if os.getenv("RELEASE", "0") == "1" else ".dev%s" % round(time.time())
+
 
 setuptools.setup(
     name="homie-helpers",
-    version="0.0.6",
+    version=f"{version}{postfix}",
     description="A set of helpers for implementing Homie IoT Convention",
     author="Rafał Zarajczyk",
     author_email="rzarajczyk@gmail.com",

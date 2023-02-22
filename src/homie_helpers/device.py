@@ -1,6 +1,9 @@
+import logging
 import re
 import time
 from enum import Enum, auto
+
+import paho.mqtt.client as mqtt
 
 import homie.device_base
 from homie.device_base import Device_Base
@@ -120,6 +123,38 @@ class MqttSettings:
     def __repr__(self):
         masked_password = 'None' if self.password is None else '*' * len(self.password)
         return f'target=mqtt://${self.username}:${masked_password}@${self.broker}:@{self.port}; topic=${self.topic}; connect_timeout=${self.connect_timeout}'
+
+
+class MqttListener:
+    def __init__(self, topic, logger, processor):
+        self.topic = topic
+        self.logger = logger
+        self.processor = processor
+        self.val = None
+
+    def collect(self, topic, payload):
+        if topic == self.topic:
+            self.logger.debug("Message accepted: %s = %s" % (topic, payload))
+            self.val = self.processor(payload)
+
+    @property
+    def value(self):
+        return self.val
+
+class MqttClient:
+    def __init__(self, mqtt_settings: MqttSettings):
+        self.client = mqtt.Client()
+        self.client.username_pw_set(mqtt_settings.username, mqtt_settings.password)
+        self.client.connect(mqtt_settings.broker, mqtt_settings.port)
+        self.mqtt_collectors: list[MqttListener] = []
+
+    def publish(self, topic, payload):
+        return self.client.publish(topic, payload)
+
+    def listen(self, topic, processor=str):
+        collector = MqttListener(topic, logging.getLogger('mqtt_collector'), processor)
+        self.mqtt_collectors.append(collector)
+        return collector
 
 
 class DeviceBaseWrapper(Device_Base):
